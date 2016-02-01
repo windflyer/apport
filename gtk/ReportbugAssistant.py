@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 from gi.repository import Gtk
+import debianbts
 import sys
-import btsconn
 import subprocess
 
 #
@@ -97,7 +97,10 @@ class ExistingReportsPage(Page):
 
     def fetch_reports(self):
         reports = []
-        reportList = btsconn.get_status(package)
+
+        bugs = debianbts.get_status('package', package)
+        reportList = debianbts.get_status(bugs)
+
         for r in reportList:
             reports.append([str(r['bug_num']), r['severity'], r['subject']])
 
@@ -343,7 +346,8 @@ class ReportbugAssistant(Gtk.Assistant):
         # but cannot import reportbug.submit
         # ImportError: cannot import name 'sumit'
         # from reportbug import sumit 
-        btsconn.send_report(package, 
+        import submit
+        submit.prepare_and_send(package, 
                 utils.installed_version(package),
                 self.severityPage.get_severity(),
                 'apport',
